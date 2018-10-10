@@ -1,7 +1,16 @@
 * Frederick Noon's Emacs Bookmark+ Repo
+
 This is my collection of Drew Adams' Bookmark+ elisp files.
 Their canonical respository is on [[https://www.emacswiki.org/emacs/BookmarkPlus][EmacsWiki]], from which these
 are downloaded by my get_bm+_files script.  There doesn't seem
 to be any more convenient way of obtaining them -- so this is
 what I've come up with.
+
+** Installation
+
+Something like the following should be in ones Emacs init file:
+
+  (add-to-list 'load-path "~/sw/third/emacs/bookmark_plus")
+  (require 'bookmark+)
+
 
