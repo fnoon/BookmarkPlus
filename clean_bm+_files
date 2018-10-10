@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+#  clean_bm+_files: Delete files downloaded by get_gm+_files.
+#
+
+rm -f *.el *.elc *.html date_retrieved
