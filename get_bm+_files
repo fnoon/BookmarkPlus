@@ -1,10 +1,20 @@
 #!/bin/sh
 #
-#  get_bm+_files: Retrieve current source for Emacs bookmark+ from EmacsWiki
+#  get_bm+_files: Retrieve current source for Bookmark+ from EmacsWiki.
 #
-#  This is the canonical source for bookmark+.  It seems to exist on GitHub
-#  only as a repo of thousands of mirrored files.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 # Get EmacsWiki documentation for Bookmark+.
 wget -O BookmarkPlus.html https://www.emacswiki.org/emacs/BookmarkPlus
@@ -19,4 +29,5 @@ wget https://www.emacswiki.org/emacs/download/bookmark+-key.el
 wget https://www.emacswiki.org/emacs/download/bookmark+-lit.el
 wget https://www.emacswiki.org/emacs/download/bookmark+-mac.el
 
+# Throw-in a timestamp.
 date -u > date_retrieved
