@@ -1,0 +1,10 @@
+#!/bin/sh
+
+emacs -q -batch -L . \
+-l bookmark+-mac.el \
+-l bookmark+.el \
+-l bookmark+-1.el \
+-l bookmark+-bmu.el \
+-l bookmark+-key.el \
+-l bookmark+-lit.el \
+-f batch-byte-compile *.el
