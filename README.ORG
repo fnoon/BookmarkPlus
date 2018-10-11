@@ -1,3 +1,9 @@
+#+TITLE: Bookmark+ Emacs Package Repo
+#+STARTUP: align
+#+STARTUP: content
+#+STARTUP: inlineimages
+
+
 * Frederick Noon's Emacs Bookmark+ Repo
 
 This is my collection of Drew Adams' Bookmark+ elisp files.
@@ -16,3 +22,10 @@ Something like the following should be in ones Emacs init file:
   (add-to-list 'load-path "~/sw/third/emacs/bookmark_plus")
   (require 'bookmark+)
 
+** Documentation
+
+The file ~bookmark+-doc.el~ is the official documentation, and the
+file ~bookmark+-chg.el~ is the official change log.  I'm not sure why
+they're ~.el~ files.  The ~get_bm+_files~ script also retrieves the
+EmacsWiki page for the package as ~BookmarkPlus.html~, which is
+similar content (plus comments).
