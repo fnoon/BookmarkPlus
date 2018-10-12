@@ -1,12 +1,10 @@
-#+TITLE: Bookmark+ Emacs Package Repo
+#+TITLE: Bookmark+ Package for Emacs
 #+STARTUP: align
 #+STARTUP: content
 #+STARTUP: inlineimages
 
 
-* Frederick Noon's Bookmark+ Repo for Emacs
-
-** License Notice
+* License Notice
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-** About this Repository
+* About this Repository
 
 This is my collection of Drew Adams' *Bookmark+* elisp files.  Their
 canonical respository is on [[https://www.emacswiki.org/emacs/BookmarkPlus][EmacsWiki]], from whence they are downloaded
@@ -37,16 +35,16 @@ functions), but the package seems to run properly.  This is the
 environment I use to run the included shell scripts.
 
 I've yet to investigate the "optional crosshairs feature" mentioned on
-EmacsWiki.  In the future, I may include ~crosshairs.el~, /etc.,/ in
+EmacsWiki.  In the future, I may include ~crosshairs.el~, /etc./, in
 this repository.
 
-** Updates
+* Updates
 
 The contents of this repository may be updated with Drew Adams'
 latest, canonical Bookmark+ source by executing my ~get_bm+_files~
 shell script.
 
-** Installation
+* Installation
 
 The files can be byte-compiled by running the included
 ~compile_bm+_files~ script.
@@ -56,7 +54,7 @@ Something like the following should be in ones Emacs init file:
 : (add-to-list 'load-path "~/path/to/bookmark_plus")
 : (require 'bookmark+)
 
-** Documentation
+* Documentation
 
 The file ~bookmark+-doc.el~ is Drew Adams' official Bookmark+
 documentation, and the file ~bookmark+-chg.el~ is the official change
@@ -65,7 +63,7 @@ log.  (I'm not sure why they're ~.el~ files, /but..../)  My
 package as ~BookmarkPlus.html~, which is similar in content to
 ~bookmark+-doc.el~, but includes comments.
 
-** License
+* License
 
 Everything here is Free Software.  As Drew Adams' files contain GPLv3+
 license notices, I am following suit on my humble additions.
