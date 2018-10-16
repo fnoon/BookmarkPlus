@@ -21,18 +21,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 * About this Repository
 
-This is my collection of Drew Adams' *Bookmark+* elisp files.  Their
-canonical respository is on [[https://www.emacswiki.org/emacs/BookmarkPlus][EmacsWiki]], from whence they are downloaded
-by my ~get_bm+_files~ script.  There doesn't seem to be any more
-convenient way of obtaining them -- so this is what I've come up with.
-(There is a copy on GitHub under the ~emacsmirror/emacswiki.org~ repo,
-but that seems to contain thousands of files in its top-level
-directory and, as such, is impractical to use.)
+This is my collection of Drew Adams' *Bookmark+* elisp source,
+together with some maintenance shell scripts I've added.  The
+canonical respository for the Bookmark+ elisp code is on [[https://www.emacswiki.org/emacs/BookmarkPlus][EmacsWiki]],
+from whence they are downloaded by my ~get_bm+_files~ script.  There
+doesn't seem to be any more convenient way of obtaining them -- so
+this is what I've come up with.  (There is a copy on GitHub under the
+~emacsmirror/emacswiki.org~ repo, but that seems to contain thousands
+of files in its top-level directory and, as such, is impractical to
+use.)
 
-On MacOS, I currently run Emacs 26.1 from https://emacsformacosx.com.
-Byte compilation produces some warnings (mostly for obsolete
-functions), but the package seems to run properly.  This is the
-environment I use to run the included shell scripts.
+I currently run Emacs 26.1 from https://emacsformacosx.com on MacOS
+10.14 (Mojave).  Byte compilation produces some warnings (mostly for
+obsolete functions), but the package seems to run properly.  This is
+the environment I use to run the included shell scripts.
 
 I've yet to investigate the "optional crosshairs feature" mentioned on
 EmacsWiki.  In the future, I may include ~crosshairs.el~, /etc./, in
@@ -40,9 +42,10 @@ this repository.
 
 * Updates
 
-The contents of this repository may be updated with Drew Adams'
-latest, canonical Bookmark+ source by executing my ~get_bm+_files~
-shell script.
+I may periodically update this repository when I install new versions
+of Bookmark+.  Regardless, any working copy may be updated with Drew
+Adams' latest, canonical Bookmark+ source by executing my
+~get_bm+_files~ shell script.
 
 * Installation
 
@@ -58,13 +61,15 @@ Something like the following should be in ones Emacs init file:
 
 The file ~bookmark+-doc.el~ is Drew Adams' official Bookmark+
 documentation, and the file ~bookmark+-chg.el~ is the official change
-log.  (I'm not sure why they're ~.el~ files, /but..../)  My
+log.  (I'm not sure why they're ~.el~ files, /but..../) My
 ~get_bm+_files~ script also retrieves the EmacsWiki page for the
 package as ~BookmarkPlus.html~, which is similar in content to
-~bookmark+-doc.el~, but includes comments.
+~bookmark+-doc.el~, but includes comments.  [TODO: I may need to have
+~wget~ recurse some more to retrieve the full, local copy of the wiki
+page.]
 
 * License
 
 Everything here is Free Software.  As Drew Adams' files contain GPLv3+
-license notices, I am following suit on my humble additions.
+license notices, I am following suit in my humble additions.
 
