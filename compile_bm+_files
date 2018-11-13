@@ -22,4 +22,11 @@ emacs -q -batch -L . \
 -l bookmark+-bmu.el \
 -l bookmark+-key.el \
 -l bookmark+-lit.el \
--f batch-byte-compile *.el
+ \
+-f batch-byte-compile \
+bookmark+-mac.el \
+bookmark+.el \
+bookmark+-1.el \
+bookmark+-bmu.el \
+bookmark+-key.el \
+bookmark+-lit.el \
