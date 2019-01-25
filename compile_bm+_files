@@ -17,9 +17,13 @@
 
 rm *.elc
 
-# Note: Load bookmark+-mac.el first!
+# Note: Compile and load bookmark+-mac.el first.
 emacs -q -batch -L . \
--l bookmark+-mac.el \
+-f batch-byte-compile \
+bookmark+-mac.el
+
+emacs -q -batch -L . \
+-l bookmark+-mac.elc \
 -l bookmark+.el \
 -l bookmark+-1.el \
 -l bookmark+-bmu.el \
@@ -27,7 +31,6 @@ emacs -q -batch -L . \
 -l bookmark+-lit.el \
  \
 -f batch-byte-compile \
-bookmark+-mac.el \
 bookmark+.el \
 bookmark+-1.el \
 bookmark+-bmu.el \
