@@ -4,11 +4,11 @@
 ;; Description: Bookmark+ key and menu bindings.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2010-2018, Drew Adams, all rights reserved.
+;; Copyright (C) 2010-2019, Drew Adams, all rights reserved.
 ;; Created: Fri Apr  1 15:34:50 2011 (-0700)
-;; Last-Updated: Wed Oct 10 15:00:22 2018 (-0700)
+;; Last-Updated: Thu May 16 08:39:10 2019 (-0700)
 ;;           By: dradams
-;;     Update #: 804
+;;     Update #: 839
 ;; URL: https://www.emacswiki.org/emacs/download/bookmark%2b-key.el
 ;; Doc URL: https://www.emacswiki.org/emacs/BookmarkPlus
 ;; Keywords: bookmarks, bookmark+, placeholders, annotations, search, info, url, eww, w3m, gnus
@@ -56,6 +56,7 @@
 ;;
 ;;  User options defined here:
 ;;
+;;    `bmkp-add-bookmarks-here-menu-flag',
 ;;    `bmkp-bookmark-map-prefix-key', `bmkp-jump-map-prefix-key',
 ;;    `bmkp-jump-other-window-map-prefix-key'.
 ;;
@@ -63,10 +64,14 @@
 ;;
 ;;    `bookmark-name-from-full-record', `bookmark-name-from-record',
 ;;    `bmkp-bookmark-data-from-record',
-;;    `bmkp-bookmark-name-from-record', `bmkp-set-map-prefix-key'.
+;;    `bmkp-bookmark-name-from-record',
+;;    `bmkp-exists-bookmark-satisfying-p',
+;;    `bmkp-exists-this-file/buffer-bookmarks-p',
+;;    `bmkp-set-map-prefix-key'.
 ;;
 ;;  Internal variables defined here:
 ;;
+;;    `bmkp-here-menu', `bmkp-bookmarks-here-menu-command-entries',
 ;;    `bmkp-find-file-menu', `bmkp-highlight-menu', `bmkp-jump-map',
 ;;    `bmkp-jump-menu', `bmkp-jump-other-window-map',
 ;;    `bmkp-jump-tags-menu', `bmkp-set-map', `bmkp-tags-map',
@@ -160,6 +165,13 @@ Each value of the list is a prefix key bound to keymap
   :set 'bmkp-set-map-prefix-key
   :group 'bookmark-plus)
 
+(defcustom bmkp-add-bookmarks-here-menu-flag nil
+  "Non-nil means add a `Bookmarks Here' menu to some menu-bar menus.
+The menu is added only if there are in fact bookmarks for the current
+buffer or file.  The default value is nil because checking whether
+there are such bookmarks can take a little time."
+  :type 'boolean :group 'bookmark-plus)
+
 
 
 ;; Some general Renamings.
@@ -201,6 +213,9 @@ Each value of the list is a prefix key bound to keymap
 ;;(@* "Keymaps")
 ;;; Keymaps ----------------------------------------------------------
 
+;; `help-map'
+(define-key help-map "M"  'bmkp-describe-bookmark)
+
 ;; `bookmark-map'
 
 ;; (define-key ctl-x-map "p" bookmark-map)
@@ -215,6 +230,7 @@ Each value of the list is a prefix key bound to keymap
 (define-key bookmark-map "I"      'bookmark-insert-location)                          ; `C-x p I'
 (define-key bookmark-map "K"      'bmkp-set-desktop-bookmark) ; `C-x p K' (also `C-x r K', `C-x p c K')
 (define-key bookmark-map "L"      'bmkp-switch-bookmark-file-create)                  ; `C-x p L'
+(define-key bookmark-map "\C-l"   'bmkp-jump-to-list)                                 ; `C-x p C-l'
 (define-key bookmark-map "m"      'bmkp-bookmark-set-confirm-overwrite)               ; `C-x p m'
 (define-key bookmark-map "N"      'bmkp-navlist-bmenu-list)                           ; `C-x p N'
 (define-key bookmark-map "o"      'bookmark-jump-other-window)           ; `C-x p o' (also `C-x 4 j j')
@@ -231,7 +247,7 @@ Each value of the list is a prefix key bound to keymap
   (define-key bookmark-map "\C-u" 'bmkp-unlight-bookmark-here)                        ; `C-x p C-u'
   (define-key bookmark-map "="    'bmkp-bookmarks-lighted-at-point))                  ; `C-x p ='
 (define-key bookmark-map ","      'bmkp-this-file/buffer-bmenu-list)                  ; `C-x p ,'
-(define-key bookmark-map "?"      'bmkp-describe-bookmark)                            ; `C-x p ?'
+(define-key bookmark-map "?"      'bmkp-describe-bookmark-lighted-here)               ; `C-x p ?'
 (define-key bookmark-map ":"      'bmkp-choose-navlist-of-type)                       ; `C-x p :'
 (define-key bookmark-map "\r"     'bmkp-toggle-autonamed-bookmark-set/delete)         ; `C-x p RET'
 (define-key bookmark-map [delete] 'bmkp-delete-bookmarks)                             ; `C-x p delete'
@@ -452,6 +468,7 @@ Each value of the list is a prefix key bound to keymap
 (define-key bmkp-jump-other-window-map "K"    'bmkp-desktop-jump)           ; SAME COMMAND: `C-x 4 j K'
 (define-key bmkp-jump-map              "l"    'bmkp-local-file-jump)                        ; `C-x j l'
 (define-key bmkp-jump-other-window-map "l"    'bmkp-local-file-jump-other-window)         ; `C-x 4 j l'
+(define-key bmkp-jump-map              "\C-l" 'bmkp-jump-to-list)                         ; `C-x j C-l'
 (define-key bmkp-jump-map              "m"    'bmkp-man-jump)                               ; `C-x j m'
 (define-key bmkp-jump-other-window-map "m"    'bmkp-man-jump-other-window)                ; `C-x 4 j m'
 (define-key bmkp-jump-map              "n"    'bmkp-remote-file-jump)         ; `C-x j n' ("_n_etwork")
@@ -562,10 +579,60 @@ Each value of the list is a prefix key bound to keymap
 (define-key bmkp-jump-map              ":"    'bmkp-jump-to-type)                           ; `C-x j :'
 (define-key bmkp-jump-other-window-map ":"    'bmkp-jump-to-type-other-window)            ; `C-x 4 j :'
 
-;; Add jump commands to other keymaps: Buffer-menu, Dired, EWW, Gnus, Info, Man, Woman, W3M.
-(add-hook 'buffer-menu-mode-hook
-          (lambda () (unless (lookup-key Buffer-menu-mode-map "j")
-                       (define-key Buffer-menu-mode-map "j" 'bmkp-non-file-jump)))) ; `j'
+(defun bmkp-exists-bookmark-satisfying-p (predicate &optional alist)
+  "Return t if there is a bookmark in ALIST that satisfies PREDICATE.
+Else return nil.  ALIST defaults to `bookmark-alist'.
+Put differently, return t iff the filtered alist is non-empty."
+  (catch 'bmkp-exists-bookmark-satisfying-p
+    (dolist (bmk  (or alist  bookmark-alist))
+      (when (funcall predicate bmk) (throw 'bmkp-exists-bookmark-satisfying-p t)))
+    nil))
+
+(defun bmkp-exists-this-file/buffer-bookmarks-p (&optional alist)
+  "Return t if there is a this file or this-buffer bookmark in ALIST."
+  (bmkp-exists-bookmark-satisfying-p (if (buffer-file-name) #'bmkp-this-file-p #'bmkp-this-buffer-p)))
+
+(defvar bmkp-bookmarks-here-menu-command-entries
+  (list (list 'bmkp-next-bookmark-this-file/buffer-repeat
+	      'menu-item
+	      "Next Bookmark Here"
+	      'bmkp-next-bookmark-this-file/buffer-repeat
+	      :help "Jump to the next bookmark in this file/buffer")
+	(list 'bmkp-previous-bookmark-this-file/buffer-repeat
+	      'menu-item
+	      "Previous Bookmark Here"
+	      'bmkp-previous-bookmark-this-file/buffer-repeat
+	      :help "Jump to the previous bookmark in this file/buffer")
+	(list 'bmkp-this-file/buffer-bmenu-list
+	      'menu-item
+	      "Show Bookmark List for All Bookmarks Here"
+	      'bmkp-this-file/buffer-bmenu-list
+	      :help "Show the bookmark list for bookmarks for the current file/buffer"))
+  "Menu entries for general commands in `Bookmarks' > `Here' menu.")
+
+(progn
+  (defvar bmkp-here-menu (make-sparse-keymap)
+    "`Here' submenu for menu-bar `Bookmarks' menu.
+Menu for bookmarks that target this file/buffer.")
+  (define-prefix-command 'bmkp-here-menu)
+  (setcdr bmkp-here-menu bmkp-bookmarks-here-menu-command-entries)
+  (define-key menu-bar-bookmark-map [bookmarks-here]
+    `(menu-item "Here" bmkp-here-menu
+                :enable (and bmkp-add-bookmarks-here-menu-flag
+                             (bmkp-exists-bookmark-satisfying-p
+                              (if (buffer-file-name) #'bmkp-this-file-p #'bmkp-this-buffer-p))))))
+
+;; Add commands to other keymaps: Buffer-menu, Dired, EWW, Gnus, Info, Man, Woman, W3M.
+
+(add-hook (if (boundp 'Buffer-menu-mode-hook) 'Buffer-menu-mode-hook 'buffer-menu-mode-hook)
+          (lambda ()
+            (unless (lookup-key Buffer-menu-mode-map "j")
+              (define-key Buffer-menu-mode-map "j" 'bmkp-non-file-jump)) ; `j'
+            (define-key Buffer-menu-mode-map [menu-bar Buffer-menu-mode here]
+              `(menu-item "Bookmarks Here" bmkp-here-menu
+                          :enable (and bmkp-add-bookmarks-here-menu-flag
+                                       (bmkp-exists-this-file/buffer-bookmarks-p))))))
+
 (add-hook 'dired-mode-hook
           (lambda ()
             (let ((now  (lookup-key dired-mode-map "J")))
@@ -589,7 +656,11 @@ Each value of the list is a prefix key bound to keymap
                          :help "Jump to a bookmarked Dired buffer for this directory"))
                      (define-key map (apply #'vector bdj)
                        '(menu-item "Jump to a Dired Bookmark" bmkp-dired-jump
-                         :help "Jump to a bookmarked Dired buffer")))
+                                   :help "Jump to a bookmarked Dired buffer"))
+                     (define-key map [bookmarks-here]
+                       `(menu-item "Here" bmkp-here-menu
+                                   :enable (and bmkp-add-bookmarks-here-menu-flag
+                                                (bmkp-exists-this-file/buffer-bookmarks-p)))))
                     (t
                      (define-key map (apply #'vector sep) '("--")) ;------------------------
                      (define-key map (apply #'vector bdjc)
@@ -597,27 +668,38 @@ Each value of the list is a prefix key bound to keymap
                          :help "Jump to a bookmarked Dired buffer for this directory"))
                      (define-key map (apply #'vector bdj)
                        '(menu-item "Jump to a Dired Bookmark" bmkp-dired-jump
-                         :help "Jump to a bookmarked Dired buffer")))))))
+                                   :help "Jump to a bookmarked Dired buffer"))
+                     (define-key map [bookmarks-here]
+                       `(menu-item "Here" bmkp-here-menu
+                                   :enable (and bmkp-add-bookmarks-here-menu-flag
+                                                (bmkp-exists-this-file/buffer-bookmarks-p)))))))))
 
 (when (fboundp 'bmkp-eww-jump)          ; Emacs 24.4+
   (add-hook 'eww-mode-hook
             (lambda () (unless (lookup-key eww-mode-map "j")
-                         (define-key eww-mode-map "j" 'bmkp-eww-jump)))))
+                    (define-key eww-mode-map "j" 'bmkp-eww-jump)))))
 
 (add-hook 'gnus-summary-mode-hook
           (lambda () (unless (lookup-key gnus-summary-mode-map "j")
                        (define-key gnus-summary-mode-map "j" 'bmkp-gnus-jump))))
+
 (add-hook 'Info-mode-hook
           (lambda ()
             (unless (lookup-key Info-mode-map "j")
               (define-key Info-mode-map "j" 'bmkp-info-jump))
             (define-key-after Info-mode-menu [bmkp-info-jump]
               '(menu-item "Jump to an Info Bookmark" bmkp-info-jump
-                :help "Jump to a bookmarked Info node")
-              'Go\ to\ Node\.\.\.)))    ; Used by `info(+).el' - corresponds to `Info-goto-node'.
+                          :help "Jump to a bookmarked Info node")
+              'Go\ to\ Node\.\.\.) ; Used by `info(+).el' - corresponds to `Info-goto-node'.
+            (define-key Info-mode-menu [bookmarks-here]
+              `(menu-item "Bookmarks Here" bmkp-here-menu
+                          :enable (and bmkp-add-bookmarks-here-menu-flag
+                                       (bmkp-exists-this-file/buffer-bookmarks-p))))))
+
 (add-hook 'Man-mode-hook
           (lambda () (unless (lookup-key Man-mode-map "j")
                        (define-key Man-mode-map "j" 'bmkp-man-jump))))
+
 (add-hook 'woman-mode-hook
           (lambda ()
             (unless (lookup-key woman-mode-map "j") (define-key woman-mode-map "j" 'bmkp-man-jump))
@@ -626,9 +708,11 @@ Each value of the list is a prefix key bound to keymap
                 '(menu-item "Jump to a `man'-page Bookmark" bmkp-man-jump
                   :help "Jump to a bookmarked `man' page")
                 'WoMan\.\.\.))))        ; Used by `woman.el' - corresponds to command `woman'.
+
 (add-hook 'w3m-minor-mode-hook
           (lambda () (unless (lookup-key w3m-minor-mode-map "j")
                        (define-key w3m-minor-mode-map "j" 'bmkp-w3m-jump))))
+
 (add-hook 'w3m-mode-hook
           (lambda () (unless (lookup-key w3m-mode-map "j")
                        (define-key w3m-mode-map "j" 'bmkp-w3m-jump))))
